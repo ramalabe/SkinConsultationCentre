@@ -1,16 +1,23 @@
+import javax.print.Doc;
 import java.time.LocalDateTime;
+import java.util.Date;
 
-public class Consultation extends Doctor{
+public class Consultation extends Doctor {
 
-    private LocalDateTime ConsulationDateandTime;
+
+    public Consultation(Doctor doctor,Date consulationDateandTime, int cost,String notes) {
+
+    }
+
+    private Date ConsulationDateandTime;
     private int cost;
     private String notes;
 
-    public LocalDateTime getConsulationDateandTime() {
+    public Date getConsulationDateandTime() {
         return ConsulationDateandTime;
     }
 
-    public void setConsulationDateandTime(LocalDateTime consulationDateandTime) {
+    public void setConsulationDateandTime(Date consulationDateandTime) {
         ConsulationDateandTime = consulationDateandTime;
     }
 

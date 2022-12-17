@@ -7,7 +7,7 @@ public class WestminsterSkinConsultationManager implements SkinConsultationManag
 
     public static void main(String[] args) throws IOException {
         WestminsterSkinConsultationManager obj = new WestminsterSkinConsultationManager();
-        obj.readData();
+        //obj.readData();
         boolean user_consent = true;
         while (user_consent) {
             try {

@@ -4,8 +4,12 @@ import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.Collections;
+import java.util.Date;
 import java.util.EventObject;
+import java.util.Objects;
 
 public class GUI extends WestminsterSkinConsultationManager implements ActionListener {
 
@@ -15,14 +19,14 @@ public class GUI extends WestminsterSkinConsultationManager implements ActionLis
 
         JButton checkDoctors = new JButton("View the List of Doctors");
         JButton sortButton = new JButton("Sort the Doctor List Alphabetically");
-//        JButton consultationButton = new JButton("Add a Consultation");
+        JButton consultationButton = new JButton("Add a Consultation");
 
-//        consultationButton.addActionListener(new ActionListener() {
-//            @Override
-//            public void actionPerformed(ActionEvent e) {
-//                addConsultation();
-//            }
-//        });
+        consultationButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                addConsultation();
+            }
+        });
 
 
         checkDoctors.addActionListener(this);
@@ -41,7 +45,7 @@ public class GUI extends WestminsterSkinConsultationManager implements ActionLis
         panel.setLayout(new GridLayout(0, 1));
         panel.add(checkDoctors);
         panel.add(sortButton);
-//        panel.add(consultationButton);
+        panel.add(consultationButton);
 
         frame.add(panel, BorderLayout.PAGE_START);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -77,38 +81,14 @@ public class GUI extends WestminsterSkinConsultationManager implements ActionLis
         JScrollPane scrollPane = new JScrollPane(table);
 
 
-//        JFrame newF1 = new JFrame("Doctor List");
-//        //newF1.setBounds(100,100,1000,500);
-//        JButton addConsultation = new JButton("Add Consultation");
-//
-//        addConsultation.addActionListener(new ActionListener() {
-//            @Override
-//            public void actionPerformed(ActionEvent e) {
-//                System.out.println(table.getSelectedRow());
-//            }
-//        });
-//
-//        addConsultation.setSize(200,30);
-//        addConsultation.setLocation(700,600);
-//        //newF1.add(table);
-//        table.setRowSelectionAllowed(true);
-//        table.setCellEditor(new DefaultCellEditor(new JTextField()) {
-//            @Override
-//            public boolean isCellEditable(EventObject e) {
-//                return false;
-//            }
-//        });
-//
-//        table.setRowSelectionAllowed(true);
-//        //c.setSize(110,40);
-//        //newF1.add(p2);
-//        //p2.setSize(100,30);
-//        //p2.add(addConsultation);
-//        newF1.add(addConsultation);
-//        newF1.add(scrollPane, BorderLayout.CENTER);
-//        newF1.setSize(1000, 720);
-//        newF1.setVisible(true);
-//
+        JFrame newF1 = new JFrame("Doctor List");
+        //newF1.add(table);
+
+        table.setEnabled(false);
+        newF1.add(scrollPane, BorderLayout.CENTER);
+        newF1.setSize(1000, 720);
+        newF1.setVisible(true);
+
 
     }
 
@@ -128,25 +108,128 @@ public class GUI extends WestminsterSkinConsultationManager implements ActionLis
         }
 
         JTable table = new JTable(model);
-        JButton addConsultation2 = new JButton("Add Consultation");
-
-        addConsultation2.setSize(200,30);
-        addConsultation2.setLocation(700,600);
 
         table.getSelectedColumn();
 
         JScrollPane scrollPane = new JScrollPane(table);
 
         JFrame f2 = new JFrame("Sorted Doctor List");
-
-        f2.add(addConsultation2);
+        table.setEnabled(false);
         f2.add(scrollPane, BorderLayout.CENTER);
         f2.setSize(1000, 720);
         f2.setVisible(true);
     }
 
-//    public void addConsultation(){
-//
+    public void addConsultation(){
+
+        // create the dropdown menu
+        JComboBox<String> dropdown = new JComboBox<>();
+
+        for (Doctor doctor : doctorList) {
+            dropdown.addItem(doctor.getName()+" "+doctor.getSurname());
+        }
+
+// create the button
+        JButton button = new JButton("Consult");
+
+// create the label
+        JLabel label = new JLabel("Please select a Doctor: ");
+
+// create a panel to hold the components
+        JPanel panel = new JPanel();
+        panel.add(label);
+        panel.add(dropdown);
+        panel.add(button);
+
+// create the frame and add the panel
+        JFrame frame = new JFrame("Add Consultation");
+        frame.add(panel);
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.pack();
+        frame.setVisible(true);
+
+
+        button.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+
+                JFrame j1 = new JFrame("Enter Appointment Details");
+                JPanel p1 = new JPanel();
+
+                //System.out.println(dropdown.getSelectedItem().toString());
+                //System.out.println(dropdown.getSelectedItem().toString().contains("Ramal"));
+
+                //String selectedDoctor = (Objects.requireNonNull(Objects.requireNonNull(dropdown.getSelectedItem()).getClass().getName()));
+
+                // Create a Date object for the current date and time
+                Date now = new Date();
+
+                // Create a SpinnerDateModel with the Date object as the value
+                SpinnerDateModel dateModel = new SpinnerDateModel(now, null, null, java.util.Calendar.MINUTE);
+
+                // Create a JSpinner with the SpinnerDateModel
+                JSpinner spinner = new JSpinner(dateModel);
+
+                // Set the format of the spinner's editor to display the date and time
+                JSpinner.DateEditor editor = new JSpinner.DateEditor(spinner, "dd-MM-yyyy HH:mm");
+                spinner.setEditor(editor);
+                Date selectedDate = (Date) spinner.getValue();
+
+                        // Create a SpinnerNumberModel with an integer value
+                SpinnerNumberModel numberModel = new SpinnerNumberModel(0, 0, 10000000, 1);
+
+                        // Create a JSpinner with the SpinnerNumberModel
+                JSpinner costSpinner = new JSpinner(numberModel);
+
+                int selectedValue = (int) costSpinner.getValue();
+
+                JTextField noteField = new JTextField();
+
+                String notes = noteField.getText();
+
+                for (Doctor doctor : doctorList) {
+                    if (Objects.requireNonNull(dropdown.getSelectedItem()).toString().contains(doctor.getName())) {
+                        Consultation c1 = new Consultation(doctor,selectedDate,selectedValue,notes);
+                    }
+                }
+
+                JLabel l1 = new JLabel("Select the Date & Time: ");
+                JLabel l2 = new JLabel("Select the Cost (£): ");
+                JLabel l3 = new JLabel("Notes: ");
+                JButton b1 = new JButton("Submit");
+
+                noteField.setPreferredSize(new Dimension(200,50));
+                j1.setPreferredSize(new Dimension(1000,500));
+                p1.setLayout(new BoxLayout(p1, BoxLayout.Y_AXIS));
+
+
+                p1.add(l1);
+                p1.add(spinner);
+                p1.add(l2);
+                p1.add(costSpinner);
+                p1.add(l3);
+                p1.add(noteField);
+                j1.add(p1);
+                p1.add(b1);
+                j1.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+                j1.pack();
+                j1.setVisible(true);
+
+                b1.addActionListener(new ActionListener() {
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                        Doctor d1 = new Doctor();
+
+                    }
+                });
+
+            }
+        });
+
+
+
+
+
 //        JFrame f3 = new JFrame("Add Consultation");
 //        JPanel p3 = new JPanel();
 //
@@ -157,7 +240,6 @@ public class GUI extends WestminsterSkinConsultationManager implements ActionLis
 //        JComboBox<String> doctorDropdown = new JComboBox<>();
 //        JButton b1 = new JButton("Add Consultation");
 //
-//        b1.setBackground(Color.GREEN);
 //
 //        for (Doctor doctor : doctorList) {
 //            doctorDropdown.addItem(doctor.getName()+" "+doctor.getSurname());
@@ -187,27 +269,19 @@ public class GUI extends WestminsterSkinConsultationManager implements ActionLis
 //        });
 //
 //
-//        p3.setSize(300,200);
-//        f3.add(p3);
-//        p3.add(b1,BorderLayout.WEST);
-//        f3.add(l1);
+//        b1.setLocation(600,700);
+//        //p3.setSize(300,200);
+//        p3.add(b1);
+//        //p3.add(b1,BorderLayout.WEST);
+//        p3.add(l1);
 //        //f3.add(b1);
-//        f3.add(doctorDropdown);
+//        p3.add(doctorDropdown);
+//        p3.setVisible(true);
 //        f3.setVisible(true);
 //
 //
-//    }
 
-//    public void addConsultation2(){
-//
-//        for(int i=0;i<doctorList.size();i++){
-//
-//            doctorList.get(i).getName().equalsIgnoreCase(addConsultation())
-//
-//        }
-
-
-//  }
+  }
 
 
 
