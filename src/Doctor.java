@@ -9,7 +9,6 @@ public class Doctor extends Person implements Comparable<Doctor>, Serializable {
     @Serial
     private static final long serialVersionUID=1L;
 
-
     public int getMedicalLicenceNumber() {
         return medicalLicenceNumber;
     }

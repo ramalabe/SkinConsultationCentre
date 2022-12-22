@@ -1,15 +1,13 @@
-import javax.print.Doc;
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.text.AbstractDocument;
+import javax.swing.text.AttributeSet;
+import javax.swing.text.BadLocationException;
+import javax.swing.text.DocumentFilter;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.time.LocalDateTime;
-import java.time.ZoneOffset;
-import java.util.Collections;
-import java.util.Date;
-import java.util.EventObject;
-import java.util.Objects;
+import java.util.*;
 
 public class GUI extends WestminsterSkinConsultationManager implements ActionListener {
 
@@ -20,11 +18,20 @@ public class GUI extends WestminsterSkinConsultationManager implements ActionLis
         JButton checkDoctors = new JButton("View the List of Doctors");
         JButton sortButton = new JButton("Sort the Doctor List Alphabetically");
         JButton consultationButton = new JButton("Add a Consultation");
+        JButton showConsultation = new JButton("Show Consultations");
 
         consultationButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 addConsultation();
+            }
+        });
+
+
+        showConsultation.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                //showConsultations();
             }
         });
 
@@ -122,6 +129,8 @@ public class GUI extends WestminsterSkinConsultationManager implements ActionLis
 
     public void addConsultation(){
 
+        ArrayList<Consultation> consultations = new ArrayList<>();
+
         // create the dropdown menu
         JComboBox<String> dropdown = new JComboBox<>();
 
@@ -175,7 +184,8 @@ public class GUI extends WestminsterSkinConsultationManager implements ActionLis
                 spinner.setEditor(editor);
                 Date selectedDate = (Date) spinner.getValue();
 
-                        // Create a SpinnerNumberModel with an integer value
+
+                // Create a SpinnerNumberModel with an integer value
                 SpinnerNumberModel numberModel = new SpinnerNumberModel(0, 0, 10000000, 1);
 
                         // Create a JSpinner with the SpinnerNumberModel
@@ -187,19 +197,51 @@ public class GUI extends WestminsterSkinConsultationManager implements ActionLis
 
                 String notes = noteField.getText();
 
-                for (Doctor doctor : doctorList) {
-                    if (Objects.requireNonNull(dropdown.getSelectedItem()).toString().contains(doctor.getName())) {
-                        Consultation c1 = new Consultation(doctor,selectedDate,selectedValue,notes);
-                    }
-                }
+//                for (Doctor doctor : doctorList) {
+//                    if (Objects.requireNonNull(dropdown.getSelectedItem()).toString().contains(doctor.getName())) {
+//                        Consultation c1 = new Consultation(doctor,selectedDate,selectedValue,notes);
+//                    }
+//                }
 
                 JLabel l1 = new JLabel("Select the Date & Time: ");
                 JLabel l2 = new JLabel("Select the Cost (£): ");
                 JLabel l3 = new JLabel("Notes: ");
                 JButton b1 = new JButton("Submit");
+                JLabel l4 = new JLabel("Patients Name: ");
+                JTextField nameField = new JTextField();
+                JLabel l5 = new JLabel("Patients Surname: ");
+                JTextField surnameField = new JTextField();
+                JLabel l6 = new JLabel("Patients Date of Birth: ");
+                JTextField dobField = new JTextField();
+                JLabel l7 = new JLabel("Patients Mobile Number: ");
+                JTextField numberField = new JTextField();
+                JLabel l8 = new JLabel("Patient Id: ");
+                JTextField patientidField = new JTextField();
+
+
+                ((AbstractDocument) numberField.getDocument()).setDocumentFilter(new DocumentFilter() {
+                    @Override
+                    public void insertString(FilterBypass fb, int offset, String string, AttributeSet attr)
+                            throws BadLocationException {
+                        // Only allow integer input
+                        if (string.matches("^\\d+$")) {
+                            super.insertString(fb, offset, string, attr);
+                        }
+                    }
+
+                    @Override
+                    public void replace(DocumentFilter.FilterBypass fb, int offset, int length, String text, AttributeSet attrs)
+                            throws BadLocationException {
+                        // Only allow integer input
+                        if (text.matches("^\\d+$")) {
+                            super.replace(fb, offset, length, text, attrs);
+                        }
+                    }
+                });
+
 
                 noteField.setPreferredSize(new Dimension(200,50));
-                j1.setPreferredSize(new Dimension(1000,500));
+                j1.setPreferredSize(new Dimension(2000,1500));
                 p1.setLayout(new BoxLayout(p1, BoxLayout.Y_AXIS));
 
 
@@ -210,6 +252,17 @@ public class GUI extends WestminsterSkinConsultationManager implements ActionLis
                 p1.add(l3);
                 p1.add(noteField);
                 j1.add(p1);
+                p1.add(l4);
+                p1.add(nameField);
+                p1.add(l5);
+                p1.add(surnameField);
+                p1.add(l6);
+                p1.add(dobField);
+                p1.add(l7);
+                p1.add(numberField);
+                p1.add(l8);
+                p1.add(patientidField);
+
                 p1.add(b1);
                 j1.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
                 j1.pack();
@@ -218,72 +271,73 @@ public class GUI extends WestminsterSkinConsultationManager implements ActionLis
                 b1.addActionListener(new ActionListener() {
                     @Override
                     public void actionPerformed(ActionEvent e) {
-                        Doctor d1 = new Doctor();
 
+                        for (int i = 0; i < doctorList.size(); i++) {
+                            if (Objects.requireNonNull(dropdown.getSelectedItem()).toString().contains(doctorList.get(i).getName())) {
+                                if (consultations.isEmpty()) {
+                                    Consultation c1 = new Consultation(doctorList.get(i), selectedDate, selectedValue, notes);
+                                    c1.setName(nameField.getText());
+                                    c1.setSurname(surnameField.getText());
+                                    c1.setDateOfBirth(dobField.getText());
+                                    c1.setMobileNumber(Integer.parseInt(numberField.getText()));
+                                    c1.setPatientId(Integer.parseInt(patientidField.getText()));
+                                    consultations.add(c1);
+                                    JOptionPane.showMessageDialog(null, "Consultation Added with Doctor " + doctorList.get(i).getName(), "Success", JOptionPane.INFORMATION_MESSAGE);
+
+
+                                } else if (!(consultations.get(i).getConsulationDateandTime().equals(selectedDate))) {
+
+                                    Consultation c1 = new Consultation(doctorList.get(i), selectedDate, selectedValue, notes);
+                                    c1.setName(nameField.getText());
+                                    c1.setSurname(surnameField.getText());
+                                    c1.setDateOfBirth(dobField.getText());
+                                    c1.setMobileNumber(Integer.parseInt(numberField.getText()));
+                                    c1.setPatientId(Integer.parseInt(patientidField.getText()));
+                                    consultations.add(c1);
+                                    JOptionPane.showMessageDialog(null, "Consultation Added with Doctor " + doctorList.get(i).getName(), "Success", JOptionPane.INFORMATION_MESSAGE);
+
+
+                                }
+
+                            } else {
+
+                                Random rng = new Random();
+                                ArrayList<Doctor> excludedDoctorList = (ArrayList<Doctor>) doctorList.clone();
+                                excludedDoctorList.remove(i);
+                                if (excludedDoctorList.isEmpty()) {
+                                    JOptionPane.showMessageDialog(null, "Doctor " + doctorList.get(i).getName() + " isn't available at the mentioned time, unable to find any other Doctors at this time", "Sorry", JOptionPane.INFORMATION_MESSAGE);
+                                    continue;
+                                } else {
+                                    int index = rng.nextInt(excludedDoctorList.size());
+                                    Doctor newDoctor = excludedDoctorList.get(index);
+                                    JOptionPane.showMessageDialog(null, "Doctor" + doctorList.get(i).getName() + "is not available at that time, consultation will be scheduled with Doctor " + newDoctor.getName(), "Alert", JOptionPane.INFORMATION_MESSAGE);
+                                    Consultation c1 = new Consultation(newDoctor, selectedDate, selectedValue, notes);
+                                    c1.setName(nameField.getText());
+                                    c1.setSurname(surnameField.getText());
+                                    c1.setDateOfBirth(dobField.getText());
+                                    c1.setMobileNumber(Integer.parseInt(numberField.getText()));
+                                    c1.setPatientId(Integer.parseInt(patientidField.getText()));
+                                    consultations.add(c1);
+                                }
+                            }
+                        }
                     }
                 });
 
+
+                showConsultation.addAc
+
+
+
             }
         });
+    };
+
+    public void showConsultations(){
 
 
-
-
-
-//        JFrame f3 = new JFrame("Add Consultation");
-//        JPanel p3 = new JPanel();
-//
-//        f3.setSize(1000,500);
-//        f3.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-//
-//        JLabel l1 = new JLabel("Please select a Doctor: ");
-//        JComboBox<String> doctorDropdown = new JComboBox<>();
-//        JButton b1 = new JButton("Add Consultation");
-//
-//
-//        for (Doctor doctor : doctorList) {
-//            doctorDropdown.addItem(doctor.getName()+" "+doctor.getSurname());
-//        }
-//
-//        String selectedItem = (String) doctorDropdown.getSelectedItem();
-//
-//        b1.addActionListener(new ActionListener() {
-//            @Override
-//            public void actionPerformed(ActionEvent e) {
-//                //addConsultation2();
-//
-//                for (Doctor doctor : doctorList) {
-//                    doctor.getName();
-//
-//                    if ((selectedItem.contains(doctor.getName()))){
-//
-//                    }
-//
-//                    Doctor d1 = new Consultation();
-//
-//
-//                }
-//
-//
-//            }
-//        });
-//
-//
-//        b1.setLocation(600,700);
-//        //p3.setSize(300,200);
-//        p3.add(b1);
-//        //p3.add(b1,BorderLayout.WEST);
-//        p3.add(l1);
-//        //f3.add(b1);
-//        p3.add(doctorDropdown);
-//        p3.setVisible(true);
-//        f3.setVisible(true);
-//
-//
-
-  }
+    }
 
 
 
 }
-

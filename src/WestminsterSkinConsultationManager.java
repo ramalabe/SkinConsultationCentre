@@ -156,7 +156,6 @@ public class WestminsterSkinConsultationManager implements SkinConsultationManag
                 System.out.println("Doctor's Medical License Number: " + doctorList.get(b).getMedicalLicenceNumber());
                 System.out.println();
             }
-
         }
     }
 
@@ -213,7 +212,6 @@ public class WestminsterSkinConsultationManager implements SkinConsultationManag
         } catch (IOException | ClassNotFoundException e) {
             e.printStackTrace();
         }
-
 
     }
 

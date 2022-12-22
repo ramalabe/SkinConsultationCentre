@@ -1,11 +1,15 @@
 import javax.print.Doc;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Date;
 
-public class Consultation extends Doctor {
-
+public class Consultation extends Patient {
 
     public Consultation(Doctor doctor,Date consulationDateandTime, int cost,String notes) {
+
+    }
+
+    public Consultation(){
 
     }
 
@@ -18,7 +22,7 @@ public class Consultation extends Doctor {
     }
 
     public void setConsulationDateandTime(Date consulationDateandTime) {
-        ConsulationDateandTime = consulationDateandTime;
+        this.ConsulationDateandTime = consulationDateandTime;
     }
 
     public int getCost() {
