@@ -7,6 +7,16 @@ public class Consultation extends Patient {
 
     }
 
+    public byte[] getEncryptedImageArray() {
+        return encryptedImageArray;
+    }
+
+    public void setEncryptedImageArray(byte[] encryptedImageArray) {
+        this.encryptedImageArray = encryptedImageArray;
+    }
+
+    byte[] encryptedImageArray;
+
     private BufferedImage noteImages;
     private Doctor doctor;
     private Date ConsulationDateandTime;

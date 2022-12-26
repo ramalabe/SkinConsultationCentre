@@ -1,3 +1,4 @@
+import javax.crypto.*;
 import javax.imageio.ImageIO;
 import javax.swing.*;
 import javax.swing.event.DocumentEvent;
@@ -14,22 +15,45 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.image.BufferedImage;
 import java.io.*;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
 import java.util.*;
 
 public class GUI extends WestminsterSkinConsultationManager implements ActionListener {
 
     ArrayList<Consultation> consultations = new ArrayList<>();
     private static BufferedImage globalImage;
+    byte[] encryptedImageData;
 
-    public GUI() {
+    SecretKey key;
+
+    public GUI() throws IOException, NoSuchAlgorithmException {
+
         JFrame frame = new JFrame();
         JPanel panel = new JPanel();
+
+        BufferedImage backgroundImage = ImageIO.read(new File("background.jpg"));
+
+
+        int width = 400;
+        int height = 200;
+
+        Image scaledImage = backgroundImage.getScaledInstance(width, height, Image.SCALE_SMOOTH);
+        JLabel label = new JLabel(new ImageIcon(scaledImage));
+
+
+        panel.setBackground(new Color(140,204,244));
 
         JButton checkDoctors = new JButton("View the List of Doctors");
         JButton sortButton = new JButton("Sort the Doctor List Alphabetically");
         JButton consultationButton = new JButton("Add a Consultation");
         JButton showConsultation = new JButton("Show Consultations");
 
+
+        checkDoctors.setBackground(Color.YELLOW);
+        sortButton.setBackground(Color.ORANGE);
+        consultationButton.setBackground(Color.GREEN);
+        showConsultation.setBackground(Color.MAGENTA);
         consultationButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -57,14 +81,16 @@ public class GUI extends WestminsterSkinConsultationManager implements ActionLis
 
 
 
-        panel.setBorder(BorderFactory.createEmptyBorder(300, 300, 300, 300));
+        panel.setBorder(BorderFactory.createEmptyBorder(100, 150, 150, 150));
         panel.setLayout(new GridLayout(0, 1));
+        panel.add(label);
         panel.add(checkDoctors);
         panel.add(sortButton);
         panel.add(consultationButton);
         panel.add(showConsultation);
-
+        panel.setPreferredSize(new Dimension(700,700));
         frame.add(panel, BorderLayout.PAGE_START);
+        frame.add(panel);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setTitle("Skin Consultation Center System");
         frame.setSize(1000, 1000);
@@ -268,8 +294,31 @@ public class GUI extends WestminsterSkinConsultationManager implements ActionLis
                         if (result == JFileChooser.APPROVE_OPTION) {
                             File selectedFile = fileChooser.getSelectedFile();
                             try {
-                                globalImage = ImageIO.read(selectedFile);
+                                    globalImage = ImageIO.read(selectedFile);
+                                    ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                                    ImageIO.write(globalImage, "jpg", baos);
+                                    baos.flush();
+                                    byte[] imageData = baos.toByteArray();
+                                    baos.close();
+                                    Cipher cipher = Cipher.getInstance("AES/ECB/PKCS5Padding");
+                                    KeyGenerator keyGenerator = KeyGenerator.getInstance("AES");
+                                    keyGenerator.init(128); // set key size to 128 bits
+                                    key = keyGenerator.generateKey();
+
+                                    cipher.init(Cipher.ENCRYPT_MODE, key);
+                                    encryptedImageData = cipher.doFinal(imageData);
+
                             } catch (IOException ex) {
+                                throw new RuntimeException(ex);
+                            } catch (NoSuchPaddingException ex) {
+                                throw new RuntimeException(ex);
+                            } catch (IllegalBlockSizeException ex) {
+                                throw new RuntimeException(ex);
+                            } catch (NoSuchAlgorithmException ex) {
+                                throw new RuntimeException(ex);
+                            } catch (BadPaddingException ex) {
+                                throw new RuntimeException(ex);
+                            } catch (InvalidKeyException ex) {
                                 throw new RuntimeException(ex);
                             }
                         }
@@ -367,13 +416,11 @@ public class GUI extends WestminsterSkinConsultationManager implements ActionLis
                                     c1.setPatientId(Integer.parseInt(patientidField.getText()));
                                     c1.setConsulationDateandTime(selectedDate);
                                     try{
-                                        if(!(globalImage.equals(null))){
-                                            c1.setNoteImages(globalImage);
-                                            globalImage = null;
+                                        c1.setEncryptedImageArray(encryptedImageData);
+                                        encryptedImageData = null;
                                             consultations.add(c1);
                                             JOptionPane.showMessageDialog(null, "Consultation Added with Doctor " + doctorList.get(i).getName(), "Success", JOptionPane.INFORMATION_MESSAGE);
                                             j1.dispose();
-                                        }
                                     }catch (Exception n){
                                         consultations.add(c1);
                                         JOptionPane.showMessageDialog(null, "Consultation Added with Doctor " + doctorList.get(i).getName(), "Success", JOptionPane.INFORMATION_MESSAGE);
@@ -391,10 +438,8 @@ public class GUI extends WestminsterSkinConsultationManager implements ActionLis
                                     c1.setMobileNumber(Integer.parseInt(numberField.getText()));
                                     c1.setPatientId(Integer.parseInt(patientidField.getText()));
                                     c1.setConsulationDateandTime(selectedDate);
-                                    if(!(globalImage.equals(null))){
-                                        c1.setNoteImages(globalImage);
-                                        globalImage = null;
-                                    }
+                                    c1.setEncryptedImageArray(encryptedImageData);
+                                    encryptedImageData = null;
                                     consultations.add(c1);
                                     JOptionPane.showMessageDialog(null, "Consultation Added with Doctor " + doctorList.get(i).getName(), "Success", JOptionPane.INFORMATION_MESSAGE);
                                     j1.dispose();
@@ -422,10 +467,8 @@ public class GUI extends WestminsterSkinConsultationManager implements ActionLis
                                         c1.setMobileNumber(Integer.parseInt(numberField.getText()));
                                         c1.setPatientId(Integer.parseInt(patientidField.getText()));
                                         c1.setConsulationDateandTime(selectedDate);
-                                        if(!(globalImage.equals(null))){
-                                            c1.setNoteImages(globalImage);
-                                            globalImage = null;
-                                        }
+                                        c1.setEncryptedImageArray(encryptedImageData);
+                                        encryptedImageData = null;
                                         consultations.add(c1);
                                         j1.dispose();
                                     }
@@ -484,7 +527,7 @@ public class GUI extends WestminsterSkinConsultationManager implements ActionLis
                     tArea8.setEditable(false);
 
                     try{
-                        if (!(consultations.get(finalX).getNoteImages().equals(null))){
+                        if (!(consultations.get(finalX).getEncryptedImageArray().equals(null))){
                             JButton showImage = new JButton("Show Images");
                             p1.add(showImage);
                             showImage.addActionListener(new ActionListener() {
@@ -493,12 +536,50 @@ public class GUI extends WestminsterSkinConsultationManager implements ActionLis
                                     JFrame f1 = new JFrame();
                                     JPanel p1 = new JPanel();
                                     f1.add(p1);
-                                    JLabel imageLabel = new JLabel();
-                                    ImageIcon imageIcon = new ImageIcon(consultations.get(finalX).getNoteImages());
-                                    imageLabel.setIcon(imageIcon);
-                                    p1.add(imageLabel);
-                                    f1.pack();
-                                    f1.setVisible(true);
+                                    int width = 600;
+                                    int height = 600;
+
+                                    Cipher cipher = null;
+                                    try {
+                                        cipher = Cipher.getInstance("AES/ECB/PKCS5Padding");
+                                    } catch (NoSuchAlgorithmException ex) {
+                                        throw new RuntimeException(ex);
+                                    } catch (NoSuchPaddingException ex) {
+                                        throw new RuntimeException(ex);
+                                    }
+                                    try {
+                                        cipher.init(Cipher.DECRYPT_MODE, key);
+                                    } catch (InvalidKeyException ex) {
+                                        throw new RuntimeException(ex);
+                                    }
+                                    try {
+                                        byte[] decryptedImageData = cipher.doFinal(consultations.get(finalX).getEncryptedImageArray());
+                                        InputStream in = new ByteArrayInputStream(decryptedImageData);
+                                        BufferedImage image = ImageIO.read(in);
+
+                                        // resize the image
+                                        BufferedImage resizedImage = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
+                                        Graphics2D g = resizedImage.createGraphics();
+                                        g.drawImage(image, 0, 0, width, height, null);
+                                        g.dispose();
+
+                                        // create the JLabel with the resized image
+                                        JLabel label = new JLabel(new ImageIcon(resizedImage));
+                                        label.setPreferredSize(new Dimension(width, height));
+                                        ImageIcon imageIcon = new ImageIcon(resizedImage);
+                                        label.setIcon(imageIcon);
+
+                                        p1.add(label);
+                                        f1.pack();
+                                        f1.setVisible(true);
+                                    } catch (IllegalBlockSizeException ex) {
+                                        throw new RuntimeException(ex);
+                                    } catch (BadPaddingException ex) {
+                                        throw new RuntimeException(ex);
+                                    } catch (IOException ex) {
+                                        throw new RuntimeException(ex);
+                                    }
+
                                 }
                             });
                         }

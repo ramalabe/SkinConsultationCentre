@@ -1,4 +1,5 @@
 import java.io.*;
+import java.security.NoSuchAlgorithmException;
 import java.util.Collections;
 import java.util.Scanner;
 public class WestminsterSkinConsultationManager implements SkinConsultationManager {
@@ -36,8 +37,7 @@ public class WestminsterSkinConsultationManager implements SkinConsultationManag
                     case 6 -> user_consent = false;
                     default -> System.out.println("Invalid Choice, Please try again");
                 }
-            } catch (Exception e) {
-                System.out.println("Please enter a valid input");
+            } catch (Exception ignored) {
             }
         }
     }
