@@ -32,15 +32,16 @@ public class GUI extends WestminsterSkinConsultationManager implements ActionLis
         JFrame frame = new JFrame();
         JPanel panel = new JPanel();
 
-        BufferedImage backgroundImage = ImageIO.read(new File("background.jpg"));
+        try{
+            BufferedImage backgroundImage = ImageIO.read(new File("background.jpg"));
+            int width = 400;
+            int height = 200;
+            Image scaledImage = backgroundImage.getScaledInstance(width, height, Image.SCALE_SMOOTH);
+            JLabel label = new JLabel(new ImageIcon(scaledImage));
+            panel.add(label);
+        }catch (Exception ignored){
 
-
-        int width = 400;
-        int height = 200;
-
-        Image scaledImage = backgroundImage.getScaledInstance(width, height, Image.SCALE_SMOOTH);
-        JLabel label = new JLabel(new ImageIcon(scaledImage));
-
+        }
 
         panel.setBackground(new Color(140,204,244));
 
@@ -83,7 +84,6 @@ public class GUI extends WestminsterSkinConsultationManager implements ActionLis
 
         panel.setBorder(BorderFactory.createEmptyBorder(100, 150, 150, 150));
         panel.setLayout(new GridLayout(0, 1));
-        panel.add(label);
         panel.add(checkDoctors);
         panel.add(sortButton);
         panel.add(consultationButton);
