@@ -1,3 +1,4 @@
+import javax.imageio.ImageIO;
 import javax.swing.*;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
@@ -11,12 +12,14 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.io.File;
+import java.awt.image.BufferedImage;
+import java.io.*;
 import java.util.*;
 
 public class GUI extends WestminsterSkinConsultationManager implements ActionListener {
 
     ArrayList<Consultation> consultations = new ArrayList<>();
+    private static BufferedImage globalImage;
 
     public GUI() {
         JFrame frame = new JFrame();
@@ -261,14 +264,18 @@ public class GUI extends WestminsterSkinConsultationManager implements ActionLis
                 uploadButton.addActionListener(new ActionListener() {
                     public void actionPerformed(ActionEvent e) {
                         JFileChooser fileChooser = new JFileChooser();
-                        int returnVal = fileChooser.showOpenDialog(frame);
-                        if (returnVal == JFileChooser.APPROVE_OPTION) {
-                            File file = fileChooser.getSelectedFile();
-                            // do something with the selected file (e.g. display the image, upload it to a server, etc.)
+                        int result = fileChooser.showOpenDialog(null);
+                        if (result == JFileChooser.APPROVE_OPTION) {
+                            File selectedFile = fileChooser.getSelectedFile();
+                            try {
+                                globalImage = ImageIO.read(selectedFile);
+                            } catch (IOException ex) {
+                                throw new RuntimeException(ex);
+                            }
                         }
                     }
-                });
 
+                });
 
 
                 p1.add(l1);
@@ -299,7 +306,7 @@ public class GUI extends WestminsterSkinConsultationManager implements ActionLis
                     @Override
                     public void windowClosing(WindowEvent e) {
                         // Perform any necessary cleanup or other actions before the frame is closed
-                        // Close the fram
+                        // Close the frame
                         j1.dispose();
                     }
                 });
@@ -359,12 +366,20 @@ public class GUI extends WestminsterSkinConsultationManager implements ActionLis
                                     c1.setMobileNumber(Integer.parseInt(numberField.getText()));
                                     c1.setPatientId(Integer.parseInt(patientidField.getText()));
                                     c1.setConsulationDateandTime(selectedDate);
-                                    consultations.add(c1);
-                                    JOptionPane.showMessageDialog(null, "Consultation Added with Doctor " + doctorList.get(i).getName(), "Success", JOptionPane.INFORMATION_MESSAGE);
-                                    j1.dispose();
-
+                                    try{
+                                        if(!(globalImage.equals(null))){
+                                            c1.setNoteImages(globalImage);
+                                            globalImage = null;
+                                            consultations.add(c1);
+                                            JOptionPane.showMessageDialog(null, "Consultation Added with Doctor " + doctorList.get(i).getName(), "Success", JOptionPane.INFORMATION_MESSAGE);
+                                            j1.dispose();
+                                        }
+                                    }catch (Exception n){
+                                        consultations.add(c1);
+                                        JOptionPane.showMessageDialog(null, "Consultation Added with Doctor " + doctorList.get(i).getName(), "Success", JOptionPane.INFORMATION_MESSAGE);
+                                        j1.dispose();
+                                    }
                                 }
-
                                 else if (!(consultations.get(i).getConsulationDateandTime().equals(selectedDate))){
                                     Consultation c1 = new Consultation();
                                     c1.setCost(selectedValue);
@@ -376,6 +391,10 @@ public class GUI extends WestminsterSkinConsultationManager implements ActionLis
                                     c1.setMobileNumber(Integer.parseInt(numberField.getText()));
                                     c1.setPatientId(Integer.parseInt(patientidField.getText()));
                                     c1.setConsulationDateandTime(selectedDate);
+                                    if(!(globalImage.equals(null))){
+                                        c1.setNoteImages(globalImage);
+                                        globalImage = null;
+                                    }
                                     consultations.add(c1);
                                     JOptionPane.showMessageDialog(null, "Consultation Added with Doctor " + doctorList.get(i).getName(), "Success", JOptionPane.INFORMATION_MESSAGE);
                                     j1.dispose();
@@ -403,6 +422,10 @@ public class GUI extends WestminsterSkinConsultationManager implements ActionLis
                                         c1.setMobileNumber(Integer.parseInt(numberField.getText()));
                                         c1.setPatientId(Integer.parseInt(patientidField.getText()));
                                         c1.setConsulationDateandTime(selectedDate);
+                                        if(!(globalImage.equals(null))){
+                                            c1.setNoteImages(globalImage);
+                                            globalImage = null;
+                                        }
                                         consultations.add(c1);
                                         j1.dispose();
                                     }
@@ -460,7 +483,28 @@ public class GUI extends WestminsterSkinConsultationManager implements ActionLis
                     JTextArea tArea8 = new JTextArea(consultations.get(finalX).getNotes());
                     tArea8.setEditable(false);
 
+                    try{
+                        if (!(consultations.get(finalX).getNoteImages().equals(null))){
+                            JButton showImage = new JButton("Show Images");
+                            p1.add(showImage);
+                            showImage.addActionListener(new ActionListener() {
+                                @Override
+                                public void actionPerformed(ActionEvent e) {
+                                    JFrame f1 = new JFrame();
+                                    JPanel p1 = new JPanel();
+                                    f1.add(p1);
+                                    JLabel imageLabel = new JLabel();
+                                    ImageIcon imageIcon = new ImageIcon(consultations.get(finalX).getNoteImages());
+                                    imageLabel.setIcon(imageIcon);
+                                    p1.add(imageLabel);
+                                    f1.pack();
+                                    f1.setVisible(true);
+                                }
+                            });
+                        }
+                    }catch (Exception ignored){
 
+                    }
 
                     p1.setLayout(new BoxLayout(p1, BoxLayout.Y_AXIS));
                     f1.add(p1);
@@ -491,7 +535,7 @@ public class GUI extends WestminsterSkinConsultationManager implements ActionLis
 
                 });
 
-
+            p.setPreferredSize(new Dimension(600,400));
             p.add(b1);
             }
             f.setPreferredSize(new Dimension(600, 400));

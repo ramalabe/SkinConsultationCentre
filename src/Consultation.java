@@ -1,3 +1,4 @@
+import java.awt.image.BufferedImage;
 import java.util.Date;
 
 public class Consultation extends Patient {
@@ -6,10 +7,19 @@ public class Consultation extends Patient {
 
     }
 
+    private BufferedImage noteImages;
     private Doctor doctor;
     private Date ConsulationDateandTime;
     private double cost;
     private String notes;
+
+    public BufferedImage getNoteImages() {
+        return noteImages;
+    }
+
+    public void setNoteImages(BufferedImage noteImages) {
+        this.noteImages = noteImages;
+    }
 
     public Doctor getDoctor() {
         return doctor;

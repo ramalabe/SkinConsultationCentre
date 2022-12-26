@@ -5,7 +5,11 @@ public class WestminsterSkinConsultationManager implements SkinConsultationManag
 
     public static void main(String[] args) throws IOException {
         WestminsterSkinConsultationManager obj = new WestminsterSkinConsultationManager();
-        //obj.readData();
+        try{
+            obj.readData();
+        }catch (Exception ignored){
+
+        }
         boolean user_consent = true;
         while (user_consent) {
             try {
@@ -159,13 +163,6 @@ public class WestminsterSkinConsultationManager implements SkinConsultationManag
 
     @Override
     public void saveFile() {
-//        try {
-//            File myObj = new File("systemData.txt");
-//            if (myObj.createNewFile()) {
-//                System.out.println("File created: " + myObj.getName());
-//            } else {
-//                System.out.println("File already exists.");
-//            }
 
             try (ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream("systemData.txt"))) {
                 for (Doctor doctor : doctorList) {
@@ -175,38 +172,14 @@ public class WestminsterSkinConsultationManager implements SkinConsultationManag
                 e.printStackTrace();
             }
 
-
-//            FileOutputStream fo1 = new FileOutputStream(myObj);
-//            ObjectOutputStream objOS = new ObjectOutputStream(fo1);
-//
-//            for (Doctor doctor : doctorList) {
-//                objOS.writeObject(doctor);
-//            }
-
-//            objOS.close();
-//            fo1.close();
             System.out.println("Data saved to the file");
 
-
-//        } catch (IOException e) {
-//            System.out.println("An error occurred.");
-//        }
     }
 
     void readData() throws IOException{
-//        File myObj = new File("systemData.txt");
-//        if (!(myObj.length()==0L)){
-//            try{
-//                FileInputStream fi1 = new FileInputStream("systemData.txt");
-//                ObjectInputStream obOS = new ObjectInputStream(fi1);
-//                doctorList.add((Doctor) obOS.readObject());
-//            }catch (Exception e) {
-//                e.printStackTrace();
-//            }
-//        }
+
         try (ObjectInputStream in = new ObjectInputStream(new FileInputStream("systemData.txt"))) {
             doctorList.add((Doctor) in.readObject());
-            //System.out.println(person2.getName() + " " + person2.getAge());
         } catch (IOException | ClassNotFoundException e) {
             e.printStackTrace();
         }

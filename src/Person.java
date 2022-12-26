@@ -1,4 +1,7 @@
-public class Person {
+import java.io.Serial;
+import java.io.Serializable;
+
+public class Person implements Serializable {
 
     private String name;
     private String surname;
@@ -6,6 +9,9 @@ public class Person {
     private String dateOfBirth;
 
     private int mobileNumber;
+
+    @Serial
+    private static final long serialVersionUID=1L;
 
     public String getDateOfBirth() {
         return dateOfBirth;
