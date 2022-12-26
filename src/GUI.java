@@ -299,7 +299,7 @@ public class GUI extends WestminsterSkinConsultationManager implements ActionLis
                     @Override
                     public void windowClosing(WindowEvent e) {
                         // Perform any necessary cleanup or other actions before the frame is closed
-                        // Close the frame
+                        // Close the fram
                         j1.dispose();
                     }
                 });
