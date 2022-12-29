@@ -1,17 +1,18 @@
 import java.io.*;
-import java.security.NoSuchAlgorithmException;
 import java.util.Collections;
 import java.util.Scanner;
-public class WestminsterSkinConsultationManager implements SkinConsultationManager {
+public class WestminsterSkinConsultationManager extends Consultation implements SkinConsultationManager {
 
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) {
         WestminsterSkinConsultationManager obj = new WestminsterSkinConsultationManager();
+        //Reading from the date file
         try{
             obj.readData();
-        }catch (Exception ignored){
+        } catch (IOException ignored){
 
         }
         boolean user_consent = true;
+        //Console Menu
         while (user_consent) {
             try {
                 System.out.println();
@@ -22,8 +23,10 @@ public class WestminsterSkinConsultationManager implements SkinConsultationManag
                 System.out.println("2: Delete a Doctor ");
                 System.out.println("3: Print the list of doctors");
                 System.out.println("4: Save the details in a File");
-                System.out.println("5: Open the Graphical User Interface");
-                System.out.println("6: Exit the System");
+                System.out.println("5: Show Consultations");
+                System.out.println("6: Cancel a Consultation");
+                System.out.println("7: Open the Graphical User Interface");
+                System.out.println("8: Exit the System");
                 System.out.println();
                 Scanner s2 = new Scanner(System.in);
                 System.out.print("Enter the choice: ");
@@ -33,8 +36,10 @@ public class WestminsterSkinConsultationManager implements SkinConsultationManag
                     case 2 -> obj.deleteDoctor();
                     case 3 -> obj.printDoctors();
                     case 4 -> obj.saveFile();
-                    case 5 -> new GUI();
-                    case 6 -> user_consent = false;
+                    case 5 -> consoleShowConsultations();
+                    case 6 -> cancelConsultations();
+                    case 7 -> new GUI();
+                    case 8 -> user_consent = false;
                     default -> System.out.println("Invalid Choice, Please try again");
                 }
             } catch (Exception ignored) {
@@ -42,6 +47,7 @@ public class WestminsterSkinConsultationManager implements SkinConsultationManag
         }
     }
 
+    //Method to add a new doctor to the system
     @Override
     public void addNewDoctor() {
         boolean userConsent = true;
@@ -91,9 +97,7 @@ public class WestminsterSkinConsultationManager implements SkinConsultationManag
                 Scanner s3 = new Scanner(System.in);
                 System.out.print("Do you want to add another Doctor ? ( Yes / No ): ");
                 String userInput = s3.nextLine();
-                if (userInput.equalsIgnoreCase("Yes")) {
-                    userConsent = true;
-                } else if (userInput.equalsIgnoreCase("No")) {
+                if (userInput.equalsIgnoreCase("No")) {
                     userConsent = false;
                 } else {
                     System.out.println("Invalid Choice");
@@ -103,6 +107,7 @@ public class WestminsterSkinConsultationManager implements SkinConsultationManag
         }
     }
 
+    //Method to delete a doctor from the system
     @Override
     public void deleteDoctor() {
         System.out.println("Please enter the Doctor's Medical License Number: ");
@@ -138,6 +143,7 @@ public class WestminsterSkinConsultationManager implements SkinConsultationManag
         }
     }
 
+    //Method to print the list of doctors
     @Override
     public void printDoctors() {
         System.out.println();
@@ -161,27 +167,87 @@ public class WestminsterSkinConsultationManager implements SkinConsultationManag
         }
     }
 
+    //Method to save the system data to a File
     @Override
     public void saveFile() {
 
             try (ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream("systemData.txt"))) {
                 for (Doctor doctor : doctorList) {
                     out.writeObject(doctor);
+                    System.out.println("Doctor data saved to the file");
+                }
+                for (Consultation consultation: consultations){
+                    out.writeObject(consultation);
+                    System.out.println("Consultation data saved to the file");
                 }
             } catch (IOException e) {
                 e.printStackTrace();
             }
 
-            System.out.println("Data saved to the file");
-
     }
 
+    //Method to get data from the file to the system
     void readData() throws IOException{
 
         try (ObjectInputStream in = new ObjectInputStream(new FileInputStream("systemData.txt"))) {
             doctorList.add((Doctor) in.readObject());
-        } catch (IOException | ClassNotFoundException e) {
+            consultations.add((Consultation) in.readObject());
+        } catch (EOFException ignored){
+
+        } catch (IOException | ClassNotFoundException e ) {
             e.printStackTrace();
+        }
+
+    }
+
+    //Method to cancel consultations
+    static void cancelConsultations(){
+
+        if(consultations.isEmpty()){
+            System.out.println("No Consultations Booked");
+        }else{
+            Scanner s1 = new Scanner(System.in);
+            System.out.println("Please enter the Patient ID: ");
+            int patientID = s1.nextInt();
+
+            for (int x=0;x<consultations.size();x++){
+
+                if(consultations.get(x).getPatientId()==patientID){
+                    System.out.println("Patient "+consultations.get(x).getName()+"'s Consultation Cancelled");
+                    consultations.remove(x);
+                }else{
+                    System.out.println("Couldn't Find a Consultation with the Mentioned Details");
+                }
+            }
+        }
+
+    }
+
+    //Method to show consultations in the console
+    static void consoleShowConsultations(){
+        if(consultations.isEmpty()){
+            System.out.println("No Consultations");
+        }else{
+            for (Consultation consultation : consultations) {
+                System.out.print("Doctors Name: ");
+                System.out.println(consultation.getDoctor().getName() + " " + consultation.getDoctor().getSurname());
+                System.out.print("Patient's Name: ");
+                System.out.println(consultation.getName() + " " + consultation.getSurname());
+                System.out.println("Patient's Date of Birth: ");
+                System.out.println(consultation.getDateOfBirth());
+                System.out.println("Patient's Mobile Number: ");
+                System.out.println(consultation.getMobileNumber());
+                System.out.println("Patient ID: ");
+                System.out.println(consultation.getPatientId());
+                System.out.println("Scheduled Date and Time: ");
+                System.out.println(consultation.getConsulationDateandTime());
+                System.out.println("Cost: ");
+                System.out.println(consultation.getCost());
+                System.out.println("Text Notes: ");
+                System.out.println(consultation.getNotes());
+                System.out.println();
+            }
+
         }
 
     }

@@ -21,13 +21,16 @@ import java.util.*;
 
 public class GUI extends WestminsterSkinConsultationManager implements ActionListener {
 
-    ArrayList<Consultation> consultations = new ArrayList<>();
     private static BufferedImage globalImage;
+
+    //Array for encrypted image store
     byte[] encryptedImageData;
 
+    //Encryption key
     SecretKey key;
 
-    public GUI() throws IOException, NoSuchAlgorithmException {
+    //Creating Main GUI Interface
+    public GUI() {
 
         JFrame frame = new JFrame();
         JPanel panel = new JPanel();
@@ -55,30 +58,15 @@ public class GUI extends WestminsterSkinConsultationManager implements ActionLis
         sortButton.setBackground(Color.ORANGE);
         consultationButton.setBackground(Color.GREEN);
         showConsultation.setBackground(Color.MAGENTA);
-        consultationButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                addConsultation();
-            }
-        });
+        consultationButton.addActionListener(e -> addConsultation());
 
 
-        showConsultation.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                showConsultations();
-            }
-        });
+        showConsultation.addActionListener(e -> showConsultations());
 
 
         checkDoctors.addActionListener(this);
 
-        sortButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                sortedDoctorList();
-            }
-        });
+        sortButton.addActionListener(e -> sortedDoctorList());
 
 
 
@@ -98,6 +86,8 @@ public class GUI extends WestminsterSkinConsultationManager implements ActionLis
         frame.setVisible(true);
     }
 
+
+    //Creating a Table to display the Doctors
     @Override
     public void actionPerformed(ActionEvent e) {
         doctorListWindow();
@@ -133,7 +123,7 @@ public class GUI extends WestminsterSkinConsultationManager implements ActionLis
 
     }
 
-
+    //Window for sorted the doctor list
     public void sortedDoctorList() {
 
         DefaultTableModel model = new DefaultTableModel();
@@ -161,6 +151,7 @@ public class GUI extends WestminsterSkinConsultationManager implements ActionLis
         f2.setVisible(true);
     }
 
+    //Creating the dropdown for consultations
     public void addConsultation() {
 
         // create the dropdown menu
@@ -170,24 +161,25 @@ public class GUI extends WestminsterSkinConsultationManager implements ActionLis
             dropdown.addItem(doctor.getName() + " " + doctor.getSurname());
         }
 
-// create the button
+    // create the button
         JButton button = new JButton("Consult");
 
-// create the label
+    // create the label
         JLabel label = new JLabel("Please select a Doctor: ");
 
-// create a panel to hold the components
+    // create a panel to hold the components
         JPanel panel = new JPanel();
         panel.add(label);
         panel.add(dropdown);
         panel.add(button);
 
-// create the frame and add the panel
+    // create the frame and add the panel
         JFrame frame = new JFrame("Add Consultation");
         frame.add(panel);
         frame.pack();
         frame.setVisible(true);
 
+        //Method to close only the frame after consultation
         frame.addWindowListener(new WindowAdapter() {
             @Override
             public void windowClosing(WindowEvent e) {
@@ -197,7 +189,7 @@ public class GUI extends WestminsterSkinConsultationManager implements ActionLis
             }
         });
 
-
+        //Consult button Action - Consulting
         button.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -239,9 +231,9 @@ public class GUI extends WestminsterSkinConsultationManager implements ActionLis
                 JLabel l7 = new JLabel("Patients Mobile Number: ");
                 JTextField numberField = new JTextField();
                 JLabel l8 = new JLabel("Patient Id: ");
-                JTextField patientidField = new JTextField();
+                JTextField patientField = new JTextField();
 
-
+                //When entering Mobile Number & Patient ID making sure only to accept numbers
                 ((AbstractDocument) numberField.getDocument()).setDocumentFilter(new DocumentFilter() {
                     @Override
                     public void insertString(FilterBypass fb, int offset, String string, AttributeSet attr)
@@ -262,7 +254,7 @@ public class GUI extends WestminsterSkinConsultationManager implements ActionLis
                     }
                 });
 
-                ((AbstractDocument) patientidField.getDocument()).setDocumentFilter(new DocumentFilter() {
+                ((AbstractDocument) patientField.getDocument()).setDocumentFilter(new DocumentFilter() {
                     @Override
                     public void insertString(FilterBypass fb, int offset, String string, AttributeSet attr)
                             throws BadLocationException {
@@ -286,44 +278,33 @@ public class GUI extends WestminsterSkinConsultationManager implements ActionLis
                 j1.setPreferredSize(new Dimension(1200, 700));
                 p1.setLayout(new BoxLayout(p1, BoxLayout.Y_AXIS));
 
+                //Image uploading feature
                 JButton uploadButton = new JButton("Upload Images");
-                uploadButton.addActionListener(new ActionListener() {
-                    public void actionPerformed(ActionEvent e) {
-                        JFileChooser fileChooser = new JFileChooser();
-                        int result = fileChooser.showOpenDialog(null);
-                        if (result == JFileChooser.APPROVE_OPTION) {
-                            File selectedFile = fileChooser.getSelectedFile();
-                            try {
-                                    globalImage = ImageIO.read(selectedFile);
-                                    ByteArrayOutputStream baos = new ByteArrayOutputStream();
-                                    ImageIO.write(globalImage, "jpg", baos);
-                                    baos.flush();
-                                    byte[] imageData = baos.toByteArray();
-                                    baos.close();
-                                    Cipher cipher = Cipher.getInstance("AES/ECB/PKCS5Padding");
-                                    KeyGenerator keyGenerator = KeyGenerator.getInstance("AES");
-                                    keyGenerator.init(128); // set key size to 128 bits
-                                    key = keyGenerator.generateKey();
+                uploadButton.addActionListener(e1 -> {
+                    JFileChooser fileChooser = new JFileChooser();
+                    int result = fileChooser.showOpenDialog(null);
+                    if (result == JFileChooser.APPROVE_OPTION) {
+                        File selectedFile = fileChooser.getSelectedFile();
+                        try {
+                                globalImage = ImageIO.read(selectedFile);
+                                ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                                ImageIO.write(globalImage, "jpg", baos);
+                                baos.flush();
+                                byte[] imageData = baos.toByteArray();
+                                baos.close();
+                                Cipher cipher = Cipher.getInstance("AES/ECB/PKCS5Padding");
+                                KeyGenerator keyGenerator = KeyGenerator.getInstance("AES");
+                                keyGenerator.init(128); // set key size to 128 bits
+                                key = keyGenerator.generateKey();
 
-                                    cipher.init(Cipher.ENCRYPT_MODE, key);
-                                    encryptedImageData = cipher.doFinal(imageData);
+                                cipher.init(Cipher.ENCRYPT_MODE, key);
+                                encryptedImageData = cipher.doFinal(imageData);
 
-                            } catch (IOException ex) {
-                                throw new RuntimeException(ex);
-                            } catch (NoSuchPaddingException ex) {
-                                throw new RuntimeException(ex);
-                            } catch (IllegalBlockSizeException ex) {
-                                throw new RuntimeException(ex);
-                            } catch (NoSuchAlgorithmException ex) {
-                                throw new RuntimeException(ex);
-                            } catch (BadPaddingException ex) {
-                                throw new RuntimeException(ex);
-                            } catch (InvalidKeyException ex) {
-                                throw new RuntimeException(ex);
-                            }
+                        } catch (IOException | NoSuchPaddingException | IllegalBlockSizeException |
+                                 NoSuchAlgorithmException | BadPaddingException | InvalidKeyException ex) {
+                            throw new RuntimeException(ex);
                         }
                     }
-
                 });
 
 
@@ -345,22 +326,22 @@ public class GUI extends WestminsterSkinConsultationManager implements ActionLis
                 p1.add(l7);
                 p1.add(numberField);
                 p1.add(l8);
-                p1.add(patientidField);
+                p1.add(patientField);
 
                 p1.add(b1);
                 j1.pack();
                 j1.setVisible(true);
 
+                //Method to close only the frame
                 j1.addWindowListener(new WindowAdapter() {
                     @Override
                     public void windowClosing(WindowEvent e) {
-                        // Perform any necessary cleanup or other actions before the frame is closed
                         // Close the frame
                         j1.dispose();
                     }
                 });
 
-
+                //Making sure Mandatory fields are entered before enabling the Submit Button
                 DocumentListener listener = new DocumentListener() {
                     @Override
                     public void insertUpdate(DocumentEvent e) {
@@ -378,11 +359,7 @@ public class GUI extends WestminsterSkinConsultationManager implements ActionLis
                     }
 
                     private void checkFields() {
-                        if (!nameField.getText().isEmpty() && !surnameField.getText().isEmpty() && !dobField.getText().isEmpty() && !numberField.getText().isEmpty() && !patientidField.getText().isEmpty()) {
-                            b1.setEnabled(true);
-                        } else {
-                            b1.setEnabled(false);
-                        }
+                        b1.setEnabled(!nameField.getText().isEmpty() && !surnameField.getText().isEmpty() && !dobField.getText().isEmpty() && !numberField.getText().isEmpty() && !patientField.getText().isEmpty());
                     }
                 };
 
@@ -391,87 +368,84 @@ public class GUI extends WestminsterSkinConsultationManager implements ActionLis
                 surnameField.getDocument().addDocumentListener(listener);
                 dobField.getDocument().addDocumentListener(listener);
                 numberField.getDocument().addDocumentListener(listener);
-                patientidField.getDocument().addDocumentListener(listener);
+                patientField.getDocument().addDocumentListener(listener);
+
+                //Adding the Consultation
+                b1.addActionListener(e12 -> {
+                    Date selectedDate = (Date) spinner.getValue();
+                    double selectedValue = ((Number) costSpinner.getValue()).doubleValue();
+                    String notes = noteField.getText();
 
 
-                b1.addActionListener(new ActionListener() {
-                    @Override
-                    public void actionPerformed(ActionEvent e) {
-                        Date selectedDate = (Date) spinner.getValue();
-                        double selectedValue = ((Number) costSpinner.getValue()).doubleValue();
-                        String notes = noteField.getText();
-
-
-                        for (int i = 0; i < doctorList.size(); i++) {
-                            if (Objects.requireNonNull(dropdown.getSelectedItem()).toString().contains(doctorList.get(i).getName())) {
-                                if ( consultations.isEmpty()) {
-                                    Consultation c1 = new Consultation();
-                                    c1.setCost(selectedValue);
-                                    c1.setNotes(notes);
-                                    c1.setDoctor(doctorList.get(i));
-                                    c1.setName(nameField.getText());
-                                    c1.setSurname(surnameField.getText());
-                                    c1.setDateOfBirth(dobField.getText());
-                                    c1.setMobileNumber(Integer.parseInt(numberField.getText()));
-                                    c1.setPatientId(Integer.parseInt(patientidField.getText()));
-                                    c1.setConsulationDateandTime(selectedDate);
-                                    try{
-                                        c1.setEncryptedImageArray(encryptedImageData);
-                                        encryptedImageData = null;
-                                            consultations.add(c1);
-                                            JOptionPane.showMessageDialog(null, "Consultation Added with Doctor " + doctorList.get(i).getName(), "Success", JOptionPane.INFORMATION_MESSAGE);
-                                            j1.dispose();
-                                    }catch (Exception n){
+                    for (int i = 0; i < doctorList.size(); i++) {
+                        if (Objects.requireNonNull(dropdown.getSelectedItem()).toString().contains(doctorList.get(i).getName())) {
+                            if ( consultations.isEmpty()) {
+                                Consultation c1 = new Consultation();
+                                c1.setCost(selectedValue);
+                                c1.setNotes(notes);
+                                c1.setDoctor(doctorList.get(i));
+                                c1.setName(nameField.getText());
+                                c1.setSurname(surnameField.getText());
+                                c1.setDateOfBirth(dobField.getText());
+                                c1.setMobileNumber(Integer.parseInt(numberField.getText()));
+                                c1.setPatientId(Integer.parseInt(patientField.getText()));
+                                c1.setConsulationDateandTime(selectedDate);
+                                try{
+                                    c1.setEncryptedImageArray(encryptedImageData);
+                                    encryptedImageData = null;
                                         consultations.add(c1);
                                         JOptionPane.showMessageDialog(null, "Consultation Added with Doctor " + doctorList.get(i).getName(), "Success", JOptionPane.INFORMATION_MESSAGE);
                                         j1.dispose();
-                                    }
-                                }
-                                else if (!(consultations.get(i).getConsulationDateandTime().equals(selectedDate))){
-                                    Consultation c1 = new Consultation();
-                                    c1.setCost(selectedValue);
-                                    c1.setNotes(notes);
-                                    c1.setDoctor(doctorList.get(i));
-                                    c1.setName(nameField.getText());
-                                    c1.setSurname(surnameField.getText());
-                                    c1.setDateOfBirth(dobField.getText());
-                                    c1.setMobileNumber(Integer.parseInt(numberField.getText()));
-                                    c1.setPatientId(Integer.parseInt(patientidField.getText()));
-                                    c1.setConsulationDateandTime(selectedDate);
-                                    c1.setEncryptedImageArray(encryptedImageData);
-                                    encryptedImageData = null;
+                                }catch (Exception n){
                                     consultations.add(c1);
                                     JOptionPane.showMessageDialog(null, "Consultation Added with Doctor " + doctorList.get(i).getName(), "Success", JOptionPane.INFORMATION_MESSAGE);
                                     j1.dispose();
                                 }
+                            }
+                            else if (!(consultations.get(i).getConsulationDateandTime().equals(selectedDate))){
+                                Consultation c1 = new Consultation();
+                                c1.setCost(selectedValue);
+                                c1.setNotes(notes);
+                                c1.setDoctor(doctorList.get(i));
+                                c1.setName(nameField.getText());
+                                c1.setSurname(surnameField.getText());
+                                c1.setDateOfBirth(dobField.getText());
+                                c1.setMobileNumber(Integer.parseInt(numberField.getText()));
+                                c1.setPatientId(Integer.parseInt(patientField.getText()));
+                                c1.setConsulationDateandTime(selectedDate);
+                                c1.setEncryptedImageArray(encryptedImageData);
+                                encryptedImageData = null;
+                                consultations.add(c1);
+                                JOptionPane.showMessageDialog(null, "Consultation Added with Doctor " + doctorList.get(i).getName(), "Success", JOptionPane.INFORMATION_MESSAGE);
+                                j1.dispose();
+                            }
 
-                                else {
+                            else {
 
-                                    Random rng = new Random();
-                                    ArrayList<Doctor> excludedDoctorList = (ArrayList<Doctor>) doctorList.clone();
-                                    excludedDoctorList.remove(i);
-                                    if (excludedDoctorList.isEmpty()) {
-                                        JOptionPane.showMessageDialog(null, "Doctor " + doctorList.get(i).getName() + " isn't available at the mentioned time, unable to find any other Doctors at this time", "Sorry", JOptionPane.INFORMATION_MESSAGE);
-                                        j1.dispose();
-                                    } else {
-                                        int index = rng.nextInt(excludedDoctorList.size());
-                                        Doctor newDoctor = excludedDoctorList.get(index);
-                                        JOptionPane.showMessageDialog(null, "Doctor " + doctorList.get(i).getName() + " is not available at that time, consultation will be scheduled with Doctor " + newDoctor.getName(), "Alert", JOptionPane.INFORMATION_MESSAGE);
-                                        Consultation c1 = new Consultation();
-                                        c1.setCost(selectedValue);
-                                        c1.setNotes(notes);
-                                        c1.setDoctor(newDoctor);
-                                        c1.setName(nameField.getText());
-                                        c1.setSurname(surnameField.getText());
-                                        c1.setDateOfBirth(dobField.getText());
-                                        c1.setMobileNumber(Integer.parseInt(numberField.getText()));
-                                        c1.setPatientId(Integer.parseInt(patientidField.getText()));
-                                        c1.setConsulationDateandTime(selectedDate);
-                                        c1.setEncryptedImageArray(encryptedImageData);
-                                        encryptedImageData = null;
-                                        consultations.add(c1);
-                                        j1.dispose();
-                                    }
+                                Random rng = new Random();
+                                ArrayList<Doctor> excludedDoctorList = (ArrayList<Doctor>) doctorList.clone();
+                                excludedDoctorList.remove(i);
+                                if (excludedDoctorList.isEmpty()) {
+                                    JOptionPane.showMessageDialog(null, "Doctor " + doctorList.get(i).getName() + " isn't available at the mentioned time, unable to find any other Doctors at this time", "Sorry", JOptionPane.INFORMATION_MESSAGE);
+                                    j1.dispose();
+                                } else {
+                                    int index = rng.nextInt(excludedDoctorList.size());
+                                    Doctor newDoctor = excludedDoctorList.get(index);
+                                    JOptionPane.showMessageDialog(null, "Doctor " + doctorList.get(i).getName() + " is not available at that time, consultation will be scheduled with Doctor " + newDoctor.getName(), "Alert", JOptionPane.INFORMATION_MESSAGE);
+                                    Consultation c1 = new Consultation();
+                                    c1.setCost(selectedValue);
+                                    c1.setNotes(notes);
+                                    c1.setDoctor(newDoctor);
+                                    c1.setName(nameField.getText());
+                                    c1.setSurname(surnameField.getText());
+                                    c1.setDateOfBirth(dobField.getText());
+                                    c1.setMobileNumber(Integer.parseInt(numberField.getText()));
+                                    c1.setPatientId(Integer.parseInt(patientField.getText()));
+                                    c1.setConsulationDateandTime(selectedDate);
+                                    c1.setEncryptedImageArray(encryptedImageData);
+                                    encryptedImageData = null;
+                                    consultations.add(c1);
+                                    j1.dispose();
                                 }
                             }
                         }
@@ -480,7 +454,8 @@ public class GUI extends WestminsterSkinConsultationManager implements ActionLis
             }
         });
     }
-    private int p=0;
+
+    //Window to Show the Consultation Details
     public void showConsultations() {
 
         JFrame f = new JFrame("Consultations");
@@ -491,130 +466,115 @@ public class GUI extends WestminsterSkinConsultationManager implements ActionLis
             JButton b1 = new JButton(consultations.get(x).getName()+" - "+consultations.get(x).getConsulationDateandTime());
 
             int finalX = x;
-            b1.addActionListener(new ActionListener() {
-                @Override
-                public void actionPerformed(ActionEvent e) {
+            b1.addActionListener(e -> {
 
-                    JFrame f1 = new JFrame("Details of "+consultations.get(finalX).getName()+"'s Appointment");
-                    JPanel p1 = new JPanel();
+                JFrame f1 = new JFrame("Details of "+consultations.get(finalX).getName()+"'s Appointment");
+                JPanel p1 = new JPanel();
 
-                    JLabel l3 = new JLabel("Doctor's Name: ");
-                    JTextArea tArea0 = new JTextArea(consultations.get(finalX).getDoctor().getName()+" "+consultations.get(finalX).getDoctor().getSurname());
-                    tArea0.setEditable(false);
-                    JLabel l4 = new JLabel("Patient's Name: ");
-                    JTextArea tArea1 = new JTextArea(consultations.get(finalX).getName());
-                    tArea1.setEditable(false);
-                    JLabel l5 = new JLabel("Patient's Surname: ");
-                    JTextArea tArea2 = new JTextArea(consultations.get(finalX).getSurname());
-                    tArea2.setEditable(false);
-                    JLabel l6 = new JLabel("Patient's Date of Birth: ");
-                    JTextArea tArea3 = new JTextArea(consultations.get(finalX).getDateOfBirth());
-                    tArea3.setEditable(false);
-                    JLabel l7 = new JLabel("Patient's Mobile Number: ");
-                    JTextArea tArea4 = new JTextArea(String.valueOf(consultations.get(finalX).getMobileNumber()));
-                    tArea4.setEditable(false);
-                    JLabel l8 = new JLabel("Patient Id: ");
-                    JTextArea tArea5 = new JTextArea(String.valueOf(consultations.get(finalX).getPatientId()));
-                    tArea5.setEditable(false);
-                    JLabel l9 = new JLabel("Scheduled Date and Time: ");
-                    JTextArea tArea6 = new JTextArea(String.valueOf(consultations.get(finalX).getConsulationDateandTime()));
-                    tArea6.setEditable(false);
-                    JLabel l10 = new JLabel("Appointment Cost: ");
-                    JTextArea tArea7 = new JTextArea(String.valueOf(consultations.get(finalX).getCost()));
-                    tArea7.setEditable(false);
-                    JLabel l11 = new JLabel("Appointment Notes: ");
-                    JTextArea tArea8 = new JTextArea(consultations.get(finalX).getNotes());
-                    tArea8.setEditable(false);
+                JLabel l3 = new JLabel("Doctor's Name: ");
+                JTextArea tArea0 = new JTextArea(consultations.get(finalX).getDoctor().getName()+" "+consultations.get(finalX).getDoctor().getSurname());
+                tArea0.setEditable(false);
+                JLabel l4 = new JLabel("Patient's Name: ");
+                JTextArea tArea1 = new JTextArea(consultations.get(finalX).getName());
+                tArea1.setEditable(false);
+                JLabel l5 = new JLabel("Patient's Surname: ");
+                JTextArea tArea2 = new JTextArea(consultations.get(finalX).getSurname());
+                tArea2.setEditable(false);
+                JLabel l6 = new JLabel("Patient's Date of Birth: ");
+                JTextArea tArea3 = new JTextArea(consultations.get(finalX).getDateOfBirth());
+                tArea3.setEditable(false);
+                JLabel l7 = new JLabel("Patient's Mobile Number: ");
+                JTextArea tArea4 = new JTextArea(String.valueOf(consultations.get(finalX).getMobileNumber()));
+                tArea4.setEditable(false);
+                JLabel l8 = new JLabel("Patient Id: ");
+                JTextArea tArea5 = new JTextArea(String.valueOf(consultations.get(finalX).getPatientId()));
+                tArea5.setEditable(false);
+                JLabel l9 = new JLabel("Scheduled Date and Time: ");
+                JTextArea tArea6 = new JTextArea(String.valueOf(consultations.get(finalX).getConsulationDateandTime()));
+                tArea6.setEditable(false);
+                JLabel l10 = new JLabel("Appointment Cost: ");
+                JTextArea tArea7 = new JTextArea(String.valueOf(consultations.get(finalX).getCost()));
+                tArea7.setEditable(false);
+                JLabel l11 = new JLabel("Appointment Notes: ");
+                JTextArea tArea8 = new JTextArea(consultations.get(finalX).getNotes());
+                tArea8.setEditable(false);
 
-                    try{
-                        if (!(consultations.get(finalX).getEncryptedImageArray().equals(null))){
-                            JButton showImage = new JButton("Show Images");
-                            p1.add(showImage);
-                            showImage.addActionListener(new ActionListener() {
-                                @Override
-                                public void actionPerformed(ActionEvent e) {
-                                    JFrame f1 = new JFrame();
-                                    JPanel p1 = new JPanel();
-                                    f1.add(p1);
-                                    int width = 600;
-                                    int height = 600;
+                try{
+                    if (consultations.get(finalX).getEncryptedImageArray() != null){
+                        JButton showImage = new JButton("Show Images");
+                        p1.add(showImage);
+                        showImage.addActionListener(e1 -> {
+                            JFrame f11 = new JFrame();
+                            JPanel p11 = new JPanel();
+                            f11.add(p11);
+                            int width = 600;
+                            int height = 600;
 
-                                    Cipher cipher = null;
-                                    try {
-                                        cipher = Cipher.getInstance("AES/ECB/PKCS5Padding");
-                                    } catch (NoSuchAlgorithmException ex) {
-                                        throw new RuntimeException(ex);
-                                    } catch (NoSuchPaddingException ex) {
-                                        throw new RuntimeException(ex);
-                                    }
-                                    try {
-                                        cipher.init(Cipher.DECRYPT_MODE, key);
-                                    } catch (InvalidKeyException ex) {
-                                        throw new RuntimeException(ex);
-                                    }
-                                    try {
-                                        byte[] decryptedImageData = cipher.doFinal(consultations.get(finalX).getEncryptedImageArray());
-                                        InputStream in = new ByteArrayInputStream(decryptedImageData);
-                                        BufferedImage image = ImageIO.read(in);
+                            Cipher cipher;
+                            try {
+                                cipher = Cipher.getInstance("AES/ECB/PKCS5Padding");
+                            } catch (NoSuchAlgorithmException | NoSuchPaddingException ex) {
+                                throw new RuntimeException(ex);
+                            }
+                            try {
+                                cipher.init(Cipher.DECRYPT_MODE, key);
+                            } catch (InvalidKeyException ex) {
+                                throw new RuntimeException(ex);
+                            }
+                            try {
+                                byte[] decryptedImageData = cipher.doFinal(consultations.get(finalX).getEncryptedImageArray());
+                                InputStream in = new ByteArrayInputStream(decryptedImageData);
+                                BufferedImage image = ImageIO.read(in);
 
-                                        // resize the image
-                                        BufferedImage resizedImage = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
-                                        Graphics2D g = resizedImage.createGraphics();
-                                        g.drawImage(image, 0, 0, width, height, null);
-                                        g.dispose();
+                                // resize the image
+                                BufferedImage resizedImage = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
+                                Graphics2D g = resizedImage.createGraphics();
+                                g.drawImage(image, 0, 0, width, height, null);
+                                g.dispose();
 
-                                        // create the JLabel with the resized image
-                                        JLabel label = new JLabel(new ImageIcon(resizedImage));
-                                        label.setPreferredSize(new Dimension(width, height));
-                                        ImageIcon imageIcon = new ImageIcon(resizedImage);
-                                        label.setIcon(imageIcon);
+                                // create the JLabel with the resized image
+                                JLabel label = new JLabel(new ImageIcon(resizedImage));
+                                label.setPreferredSize(new Dimension(width, height));
+                                ImageIcon imageIcon = new ImageIcon(resizedImage);
+                                label.setIcon(imageIcon);
 
-                                        p1.add(label);
-                                        f1.pack();
-                                        f1.setVisible(true);
-                                    } catch (IllegalBlockSizeException ex) {
-                                        throw new RuntimeException(ex);
-                                    } catch (BadPaddingException ex) {
-                                        throw new RuntimeException(ex);
-                                    } catch (IOException ex) {
-                                        throw new RuntimeException(ex);
-                                    }
+                                p11.add(label);
+                                f11.pack();
+                                f11.setVisible(true);
+                            } catch (IllegalBlockSizeException | BadPaddingException | IOException ex) {
+                                throw new RuntimeException(ex);
+                            }
 
-                                }
-                            });
-                        }
-                    }catch (Exception ignored){
-
+                        });
                     }
+                }catch (Exception ignored){
 
-                    p1.setLayout(new BoxLayout(p1, BoxLayout.Y_AXIS));
-                    f1.add(p1);
-                    p1.add(l3);
-                    p1.add(tArea0);
-                    p1.add(l4);
-                    p1.add(tArea1);
-                    p1.add(l5);
-                    p1.add(tArea2);
-                    p1.add(l6);
-                    p1.add(tArea3);
-                    p1.add(l7);
-                    p1.add(tArea4);
-                    p1.add(l8);
-                    p1.add(tArea5);
-                    p1.add(l9);
-                    p1.add(tArea6);
-                    p1.add(l10);
-                    p1.add(tArea7);
-                    p1.add(l11);
-                    p1.add(tArea8);
-
-                    f1.pack();
-                    f1.setVisible(true);
                 }
 
+                p1.setLayout(new BoxLayout(p1, BoxLayout.Y_AXIS));
+                f1.add(p1);
+                p1.add(l3);
+                p1.add(tArea0);
+                p1.add(l4);
+                p1.add(tArea1);
+                p1.add(l5);
+                p1.add(tArea2);
+                p1.add(l6);
+                p1.add(tArea3);
+                p1.add(l7);
+                p1.add(tArea4);
+                p1.add(l8);
+                p1.add(tArea5);
+                p1.add(l9);
+                p1.add(tArea6);
+                p1.add(l10);
+                p1.add(tArea7);
+                p1.add(l11);
+                p1.add(tArea8);
 
-
-                });
+                f1.pack();
+                f1.setVisible(true);
+            });
 
             p.setPreferredSize(new Dimension(600,400));
             p.add(b1);

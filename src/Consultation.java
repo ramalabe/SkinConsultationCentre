@@ -1,11 +1,14 @@
-import java.awt.image.BufferedImage;
+import java.io.Serial;
+import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Date;
 
-public class Consultation extends Patient {
+public class Consultation extends Patient implements Serializable {
 
-    public Consultation(){
+    @Serial
+    private static final long serialVersionUID=1L;
 
-    }
+    static ArrayList<Consultation> consultations = new ArrayList<>();
 
     public byte[] getEncryptedImageArray() {
         return encryptedImageArray;
@@ -17,19 +20,10 @@ public class Consultation extends Patient {
 
     byte[] encryptedImageArray;
 
-    private BufferedImage noteImages;
     private Doctor doctor;
     private Date ConsulationDateandTime;
     private double cost;
     private String notes;
-
-    public BufferedImage getNoteImages() {
-        return noteImages;
-    }
-
-    public void setNoteImages(BufferedImage noteImages) {
-        this.noteImages = noteImages;
-    }
 
     public Doctor getDoctor() {
         return doctor;

@@ -26,6 +26,7 @@ public class Doctor extends Person implements Comparable<Doctor>, Serializable {
     }
 
 
+    //Method to create a comparable for doctor list sorting
     @Override
     public int compareTo(Doctor o) {
         int result = this.getSurname().compareTo(o.getSurname());
