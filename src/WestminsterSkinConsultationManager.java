@@ -1,4 +1,5 @@
 import java.io.*;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Scanner;
 public class WestminsterSkinConsultationManager extends Consultation implements SkinConsultationManager {
@@ -171,36 +172,32 @@ public class WestminsterSkinConsultationManager extends Consultation implements 
     @Override
     public void saveFile() {
 
-            try (ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream("systemData.txt"))) {
-                for (Doctor doctor : doctorList) {
-                    out.writeObject(doctor);
-                    System.out.println("Doctor data saved to the file");
-                }
-                for (Consultation consultation: consultations){
-                    out.writeObject(consultation);
-                    System.out.println("Consultation data saved to the file");
-                }
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-
+        try (ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream("systemData.txt"))) {
+        out.writeObject(doctorList);
+        out.writeObject(consultations);
+        out.flush();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     //Method to get data from the file to the system
-    void readData() throws IOException{
+    void readData() throws IOException {
 
         try (ObjectInputStream in = new ObjectInputStream(new FileInputStream("systemData.txt"))) {
-            doctorList.add((Doctor) in.readObject());
-            consultations.add((Consultation) in.readObject());
-        } catch (EOFException ignored){
+            ArrayList<Doctor> doctorReadList = (ArrayList<Doctor>) in.readObject();
+            doctorList.addAll(doctorReadList);
 
-        } catch (IOException | ClassNotFoundException e ) {
-            e.printStackTrace();
+            ArrayList<Consultation> consultationReadList = (ArrayList<Consultation>) in.readObject();
+            consultations.addAll(consultationReadList);
+        } catch (ClassNotFoundException e) {
+            throw new RuntimeException(e);
+        }catch (ClassCastException ignored) {
+
         }
-
     }
 
-    //Method to cancel consultations
+        //Method to cancel consultations
     static void cancelConsultations(){
 
         if(consultations.isEmpty()){
