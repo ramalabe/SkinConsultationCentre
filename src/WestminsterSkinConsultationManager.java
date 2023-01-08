@@ -99,14 +99,18 @@ public class WestminsterSkinConsultationManager extends Consultation implements 
                 System.out.print("Do you want to add another Doctor ? ( Yes / No ): ");
                 String userInput = s3.nextLine();
                 if (userInput.equalsIgnoreCase("No")) {
-                    userConsent = false;
-                } else {
+                    userConsent = false; }
+
+                else if (userInput.equalsIgnoreCase("Yes")) {
+                    userConsent = true;
+
+                }else{
                     System.out.println("Invalid Choice");
                     break;
+                        }
+                    }
                 }
             }
-        }
-    }
 
     //Method to delete a doctor from the system
     @Override
@@ -114,32 +118,38 @@ public class WestminsterSkinConsultationManager extends Consultation implements 
         System.out.println("Please enter the Doctor's Medical License Number: ");
         Scanner s4 = new Scanner(System.in);
         int MLN = s4.nextInt();
-        for (int a = 0; a <= doctorList.size(); a++) {
-            if (doctorList.get(a).getMedicalLicenceNumber() == MLN) {
-                String nameOfRemoval = doctorList.get(a).getName();
-                System.out.println("Do you want to delete doctor " + nameOfRemoval + " from the List ? (Y/N)");
-                s4.nextLine();
-                String confirmation = s4.nextLine();
-                if (confirmation.equalsIgnoreCase("y")) {
-                    System.out.println("Below doctor is removed from the list: ");
-                    System.out.println("Doctor's Name: " + doctorList.get(a).getName());
-                    System.out.println("Doctor's Last Name: " + doctorList.get(a).getSurname());
-                    System.out.println("Doctor's Date of Birth: " + doctorList.get(a).getDateOfBirth());
-                    System.out.println("Doctor's Mobile Number: " + doctorList.get(a).getMobileNumber());
-                    System.out.println("Doctor's Specialisation: " + doctorList.get(a).getSpecialisation());
-                    System.out.println("Doctor's Medical License Number: " + doctorList.get(a).getMedicalLicenceNumber());
-                    doctorList.remove(a);
-                    System.out.println();
-                    System.out.println("Total Number of Doctors in the Centre: " + doctorList.size());
-                    break;
-                } else if (confirmation.equalsIgnoreCase("n")) {
-                    break;
-                } else {
-                    System.out.println("Please enter a valid input");
+        boolean numCheck = true;
+        while (numCheck){
+            for (int a = 0; a < doctorList.size(); a++) {
+                if (doctorList.get(a).getMedicalLicenceNumber() == MLN) {
+                    String nameOfRemoval = doctorList.get(a).getName();
+                    System.out.println("Do you want to delete doctor " + nameOfRemoval + " from the List ? (Y/N)");
+                    s4.nextLine();
+                    String confirmation = s4.nextLine();
+                    if (confirmation.equalsIgnoreCase("y")) {
+                        System.out.println("Below doctor is removed from the list: ");
+                        System.out.println("Doctor's Name: " + doctorList.get(a).getName());
+                        System.out.println("Doctor's Last Name: " + doctorList.get(a).getSurname());
+                        System.out.println("Doctor's Date of Birth: " + doctorList.get(a).getDateOfBirth());
+                        System.out.println("Doctor's Mobile Number: " + doctorList.get(a).getMobileNumber());
+                        System.out.println("Doctor's Specialisation: " + doctorList.get(a).getSpecialisation());
+                        System.out.println("Doctor's Medical License Number: " + doctorList.get(a).getMedicalLicenceNumber());
+                        doctorList.remove(a);
+                        System.out.println();
+                        System.out.println("Total Number of Doctors in the Centre: " + doctorList.size());
+                        numCheck=false;
+                    } else if (confirmation.equalsIgnoreCase("n")) {
+                        numCheck=false;
+                    } else {
+                        System.out.println("Please enter a valid input");
+                    }
+
+                }else if ((doctorList.get(a).getMedicalLicenceNumber() != MLN) && (doctorList.size()==a-1)){
+                    System.out.println("Unable to find a doctor with the mentioned Medical License Number");
+                    numCheck=false;
+                }else if(doctorList.get(a).getMedicalLicenceNumber() != MLN){
+                    continue;
                 }
-            } else {
-                System.out.println("Unable to find a doctor with the mentioned Medical License Number in the List");
-                break;
             }
         }
     }
@@ -176,6 +186,7 @@ public class WestminsterSkinConsultationManager extends Consultation implements 
         out.writeObject(doctorList);
         out.writeObject(consultations);
         out.flush();
+            System.out.println("Data Saved to the File");
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

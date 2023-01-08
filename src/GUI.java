@@ -161,19 +161,19 @@ public class GUI extends WestminsterSkinConsultationManager implements ActionLis
             dropdown.addItem(doctor.getName() + " " + doctor.getSurname());
         }
 
-    // create the button
+        // create the button
         JButton button = new JButton("Consult");
 
-    // create the label
+        // create the label
         JLabel label = new JLabel("Please select a Doctor: ");
 
-    // create a panel to hold the components
+        // create a panel to hold the components
         JPanel panel = new JPanel();
         panel.add(label);
         panel.add(dropdown);
         panel.add(button);
 
-    // create the frame and add the panel
+        // create the frame and add the panel
         JFrame frame = new JFrame("Add Consultation");
         frame.add(panel);
         frame.pack();
@@ -286,19 +286,19 @@ public class GUI extends WestminsterSkinConsultationManager implements ActionLis
                     if (result == JFileChooser.APPROVE_OPTION) {
                         File selectedFile = fileChooser.getSelectedFile();
                         try {
-                                globalImage = ImageIO.read(selectedFile);
-                                ByteArrayOutputStream baos = new ByteArrayOutputStream();
-                                ImageIO.write(globalImage, "jpg", baos);
-                                baos.flush();
-                                byte[] imageData = baos.toByteArray();
-                                baos.close();
-                                Cipher cipher = Cipher.getInstance("AES/ECB/PKCS5Padding");
-                                KeyGenerator keyGenerator = KeyGenerator.getInstance("AES");
-                                keyGenerator.init(128); // set key size to 128 bits
-                                key = keyGenerator.generateKey();
+                            globalImage = ImageIO.read(selectedFile);
+                            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                            ImageIO.write(globalImage, "jpg", baos);
+                            baos.flush();
+                            byte[] imageData = baos.toByteArray();
+                            baos.close();
+                            Cipher cipher = Cipher.getInstance("AES/ECB/PKCS5Padding");
+                            KeyGenerator keyGenerator = KeyGenerator.getInstance("AES");
+                            keyGenerator.init(128); // set key size to 128 bits
+                            key = keyGenerator.generateKey();
 
-                                cipher.init(Cipher.ENCRYPT_MODE, key);
-                                encryptedImageData = cipher.doFinal(imageData);
+                            cipher.init(Cipher.ENCRYPT_MODE, key);
+                            encryptedImageData = cipher.doFinal(imageData);
 
                         } catch (IOException | NoSuchPaddingException | IllegalBlockSizeException |
                                  NoSuchAlgorithmException | BadPaddingException | InvalidKeyException ex) {
@@ -377,7 +377,7 @@ public class GUI extends WestminsterSkinConsultationManager implements ActionLis
                     String notes = noteField.getText();
 
 
-                    for (int i = 0; i < doctorList.size(); i++) {
+                    for (int i = 0; i <= consultations.size(); i++) {
                         if (Objects.requireNonNull(dropdown.getSelectedItem()).toString().contains(doctorList.get(i).getName())) {
                             if ( consultations.isEmpty()) {
                                 Consultation c1 = new Consultation();
@@ -393,9 +393,9 @@ public class GUI extends WestminsterSkinConsultationManager implements ActionLis
                                 try{
                                     c1.setEncryptedImageArray(encryptedImageData);
                                     encryptedImageData = null;
-                                        consultations.add(c1);
-                                        JOptionPane.showMessageDialog(null, "Consultation Added with Doctor " + doctorList.get(i).getName(), "Success", JOptionPane.INFORMATION_MESSAGE);
-                                        j1.dispose();
+                                    consultations.add(c1);
+                                    JOptionPane.showMessageDialog(null, "Consultation Added with Doctor " + doctorList.get(i).getName(), "Success", JOptionPane.INFORMATION_MESSAGE);
+                                    j1.dispose();
                                 }catch (Exception n){
                                     consultations.add(c1);
                                     JOptionPane.showMessageDialog(null, "Consultation Added with Doctor " + doctorList.get(i).getName(), "Success", JOptionPane.INFORMATION_MESSAGE);
@@ -578,11 +578,11 @@ public class GUI extends WestminsterSkinConsultationManager implements ActionLis
 
             p.setPreferredSize(new Dimension(600,400));
             p.add(b1);
-            }
-            f.setPreferredSize(new Dimension(600, 400));
-            f.add(p);
-            f.pack();
-            f.setVisible(true);
         }
+        f.setPreferredSize(new Dimension(600, 400));
+        f.add(p);
+        f.pack();
+        f.setVisible(true);
+    }
 
 }
